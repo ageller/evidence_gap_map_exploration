@@ -67,12 +67,11 @@ shapes_for_plotly <- function(n_x, n_y){
 ###### modular ui and server functions
 mod_plot_ui <- function(id) {
   ns <- NS(id)
-  
-  plotlyOutput(ns("egm_plot"))
+  plotlyOutput(ns("egm_plot"),  height = "800px") # could use the same height as calculated in the server
 }
 
 
-mod_plot_server <- function(id, x_col, y_col, n_col) {
+mod_plot_server <- function(id, plot_source_name, x_col, y_col, n_col) {
     moduleServer(
         id,
         function(input, output, session) {
@@ -87,6 +86,9 @@ mod_plot_server <- function(id, x_col, y_col, n_col) {
             plot_width  <- n_x * cell_px + 260
             plot_height <- n_y * cell_px
 
+            # clean the text for the title and tooltips
+            clean_x_title <- str_replace_all(x_col,fixed(".")," ")
+            clean_y_title <- str_replace_all(y_col,fixed(".")," ")
             
             # create the plotly figure
             egm_spec <- plot_ly(
@@ -97,21 +99,26 @@ mod_plot_server <- function(id, x_col, y_col, n_col) {
                 type = "scatter",
                 mode = "markers",
                 sizes = c(5, 100),   # controls min/max bubble size
-                marker = list(opacity = 0.7),
+                marker = list(
+                  color = "#1f77b4",
+                  opacity = 0.7
+                ),
                 text = ~paste(
-                    "Intervention:", batch3_egm_counts[[x_col]],
-                    "<br>Outcome:", batch3_egm_counts[[y_col]],
+                    clean_x_title,":", batch3_egm_counts[[x_col]],
+                    "<br>",
+                    clean_y_title,":", batch3_egm_counts[[y_col]],
                     "<br>Papers:", batch3_egm_counts[[n_col]]
                 ),
                 hoverinfo = "text",
                 height = plot_height,
-                width = plot_width
+                width = plot_width,
+                source = plot_source_name
             ) %>%
             layout(
                 margin = list(t = 100),
                 xaxis = list(
                   title = list(
-                    text = str_replace_all(x_col,fixed(".")," "), 
+                    text = clean_x_title, 
                     standoff = 10
                   ),
                   side = "top", 
@@ -120,7 +127,7 @@ mod_plot_server <- function(id, x_col, y_col, n_col) {
                 ),
                 yaxis = list(
                   title = list(
-                    text = str_replace_all(y_col,fixed(".")," "),
+                    text = clean_y_title,
                     standoff = 20  
                   ),
                   showgrid = FALSE
@@ -149,7 +156,10 @@ mod_plot_server <- function(id, x_col, y_col, n_col) {
             } else if (!is.null(yaxis$ticktext)) {
               emg_build$x$layout$yaxis$ticktext <- wrap_for_plotly(yaxis$ticktext, 24, 2)
             }
+            
             output$egm_plot <- renderPlotly(emg_build)
+            
+            
 
         }
     )
