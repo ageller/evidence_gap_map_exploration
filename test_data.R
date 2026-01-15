@@ -10,7 +10,7 @@ logic_converter <- function(x) {
   return(x_new)
 }
 
-batch3_df <- read_csv("EGM_Shiny/data/examples/batch3_resolved.csv") %>%
+batch3_df <- read_csv("EGM_Shiny/data/batch3_resolved.csv") %>%
   distinct(Phase, Assignment, Directory, .keep_all = TRUE) %>% #!!! THIS NEEDS TO BE UPDATED
   mutate(internal_id = row_number()) 
 

@@ -7,7 +7,7 @@ library(stringr)
 library(DT)
 
 # Read data and do initial cleaning
-batch3_df <- read_csv("data/examples/batch3_resolved.csv") %>%
+batch3_df <- read_csv("data/batch3_resolved.csv") %>%
     distinct(Phase, Assignment, Directory, .keep_all = TRUE) %>% #!!! THIS NEEDS TO BE UPDATED
     mutate(internal_id = row_number()) %>%
     mutate(
